@@ -1,0 +1,73 @@
+version: '2'
+
+networks:
+  app_network: # Define a custom network
+    driver: bridge
+
+services:
+  db:
+    image: postgres:15.2
+    env_file: .env
+    container_name: report_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - database:/var/lib/postgresql/data
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+    networks:
+      - app_network
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      # Configure listeners for internal and external communication
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9093,EXTERNAL://localhost:9092
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "general-msg:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_network
+
+  pyspark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - app_network
+    depends_on:
+      - kafka
+      - zookeeper
+    stdin_open: true
+    tty: true
+
+  producer:
+    build:
+      context: .
+      dockerfile: producer/Dockerfile
+    container_name: producer_worker
+    networks:
+      - app_network
+    depends_on:
+      - kafka
+      - zookeeper 
+
+volumes:
+  database:

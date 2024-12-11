@@ -1,0 +1,32 @@
+*.pyc
+*.bkp
+*.bkp.*
+**/__pycache__/
+db.sqlite3
+.env*
+**/tmp
+develop
+docker-compose.override.yml
+
+# PyCharm
+.idea/
+celerybeat.pid
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# MACOS Files
+.DS_Store
+
+
+# Py env/virtual-env
+Pipfile
+
+# VSCode
+.vscode
+
+# Pyenv & venv
+.python-version
+.venv/

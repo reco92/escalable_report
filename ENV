@@ -1,0 +1,4 @@
+DB_NAME=escalable
+DB_USER=escalable
+DB_PASS=escalable_pass
+DB_PORT=5432
