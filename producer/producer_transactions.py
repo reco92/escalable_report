@@ -3,7 +3,8 @@ import logging
 from quixstreams import Application
 
 FILE_NAME = 'first_data.csv'
-DNS = '172.27.0.2'
+# DNS = '172.27.0.2'
+DNS = 'kafka'
 TOPIC = 'raw_transactions'
 LINES_PER_MINUTE = 1000
 TOTAL_DURATION_MINUTES = 120

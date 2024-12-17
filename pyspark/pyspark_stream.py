@@ -8,7 +8,8 @@ from currency import RATES_TO_USD
 
 
 
-DB_HOST = '172.27.0.3'
+# DB_HOST = '172.27.0.3'
+DB_HOST = 'db'
 DB_PORT = 5432
 DB_NAME = 'escalable'
 DB_USER = 'escalable'
@@ -55,7 +56,7 @@ kafka_df = (
     spark
     .readStream
     .format("kafka")
-    .option("kafka.bootstrap.servers", "172.27.0.2:9093")
+    .option("kafka.bootstrap.servers", "kafka:9093")
     .option("subscribe", "raw_transactions")
     # .option("startingOffsets", "earliest")
     .option("startingOffsets", "latest")

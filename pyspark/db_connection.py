@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 
-DB_HOST = '172.27.0.3'
+# DB_HOST = '172.27.0.3'
+DB_HOST = 'db'
 DB_PORT = 5432
 DB_NAME = 'escalable'
 DB_USER = 'escalable'
