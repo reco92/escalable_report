@@ -6,13 +6,13 @@ from quixstreams import Application
 
 FILE_NAME = 'first_data.csv'
 DNS = 'kafka'
-TOPIC = 'raw_transactions'
-LINES_PER_MINUTE = 1000
+TOPIC = 'raw-transactions'
+LINES_PER_PERIOD = 1000
 TOTAL_DURATION_MINUTES = 120
 
 def main():
     app = Application(
-        broker_address=f"{DNS}:9092",
+        broker_address=f"{DNS}:9093",
         loglevel="DEBUG",
     )
 
@@ -30,9 +30,15 @@ def main():
                     lines_sent_this_minute = 0
                     minute_start_time = time.time()
 
-                    while lines_sent_this_minute < LINES_PER_MINUTE:
+                    while lines_sent_this_minute < LINES_PER_PERIOD:
                         try:
                             row = next(csv_reader)
+                            row['amount'] = float(row['amount'])
+                            row['distance_from_home'] = float(row['distance_from_home'])
+                            row['card_present'] = (row['card_present'].lower() == 'true')
+                            row['high_risk_merchant'] = (row['high_risk_merchant'].lower() == 'true')
+                            row['weekend_transaction'] = (row['weekend_transaction'].lower() == 'true')
+                            row['is_fraud'] = (row['is_fraud'].lower() == 'true')
                         except StopIteration:
                             print("End of file reached.")
                             return
@@ -51,7 +57,7 @@ def main():
                     print(f"Minute {minute + 1}: Sent {lines_sent_this_minute} lines. Total: {total_lines_sent}")
 
                     elapsed_time = time.time() - minute_start_time
-                    time_to_wait = 60 - elapsed_time
+                    time_to_wait = 15 - elapsed_time
                     if time_to_wait > 0:
                         time.sleep(time_to_wait)
                     else:

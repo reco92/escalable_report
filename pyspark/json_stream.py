@@ -56,24 +56,13 @@ kafka_df = (
     spark
     .readStream
     .format("kafka")
-    .option("kafka.bootstrap.servers", "ec2-3-88-150-217.compute-1.amazonaws.com:9092")
-    .option("subscribe", "process_events")
+    .option("kafka.bootstrap.servers", "kafka:9093")
+    .option("subscribe", "process-transactions")
     # .option("startingOffsets", "earliest")
     .option("startingOffsets", "latest")
     .load()
 )
 
-
-
-## To check the general-msg channel
-# query = kafka_df.selectExpr(
-#         "CAST(key AS STRING)", "CAST(value AS STRING)"
-#     ).writeStream.outputMode(
-#         "append"
-#     ).format(
-#         "console"
-#     ).start()
-# query.awaitTermination()
 
 kafka_df.printSchema()
 print('-----------------------------------1')
@@ -111,38 +100,6 @@ streaming_df = kafka_json_df.withColumn(
     ).selectExpr("values_json.*")
 
 
-# string_df = kafka_df.selectExpr("CAST(value AS STRING) as value")
-# split_df = string_df.withColumn("fields", expr(
-#     """
-#     split(value, ',(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)')
-#     """
-# )).selectExpr(
-#     "fields[0] as transaction_id",
-#     "fields[1] as customer_id",
-#     "fields[2] as card_number",
-#     "fields[3] as timestamp",
-#     "fields[4] as merchant_category",
-#     "fields[5] as merchant_type",
-#     "fields[6] as merchant",
-#     "cast(fields[7] as float) as amount",
-#     "fields[8] as currency",
-#     "fields[9] as country",
-#     "fields[10] as city",
-#     "fields[11] as city_size",
-#     "fields[12] as card_type",
-#     "cast(fields[13] as boolean) as card_present",
-#     "fields[14] as device",
-#     "fields[15] as channel",
-#     "fields[16] as device_fingerprint",
-#     "fields[17] as ip_address",
-#     "cast(fields[18] as int) as distance_from_home",
-#     "cast(fields[19] as boolean) as high_risk_merchant",
-#     "cast(fields[20] as int) as transaction_hour",
-#     "cast(fields[21] as boolean) as weekend_transaction",
-#     "fields[22] as velocity_last_hour",
-#     "cast(fields[23] as boolean) as is_fraud"
-# )
-
 streaming_df = (
     streaming_df.withColumn("year", year(col("timestamp")))
             .withColumn("month", month(col("timestamp")))
@@ -169,16 +126,5 @@ query = (
     .start()
 )
 
-# For console debugging:
-# query = (
-#     streaming_df
-#     .writeStream
-#     .outputMode("append")
-#     .format("console")  # Output to console for debugging
-#     .option("truncate", "false")
-#     .start()
-# )
-
-# Wait for the termination of the query
 query.awaitTermination()
 

@@ -40,7 +40,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "general-msg:1:1"
+      KAFKA_CREATE_TOPICS: "general-msg:1:1,raw-transactions:2:1,process-transactions:3:1"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -67,7 +67,18 @@ services:
       - app_network
     depends_on:
       - kafka
-      - zookeeper 
+      - zookeeper
+  
+  consumer:
+    build:
+      context: .
+      dockerfile: consumer/Dockerfile
+    container_name: consumer_worker
+    networks:
+      - app_network
+    depends_on:
+      - kafka
+      - zookeeper
 
 volumes:
   database:

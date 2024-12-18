@@ -57,58 +57,14 @@ kafka_df = (
     .readStream
     .format("kafka")
     .option("kafka.bootstrap.servers", "kafka:9093")
-    .option("subscribe", "raw_transactions")
+    .option("subscribe", "raw-transactions")
     # .option("startingOffsets", "earliest")
     .option("startingOffsets", "latest")
     .load()
 )
 
-
-
-## To check the general-msg channel
-# query = kafka_df.selectExpr(
-#         "CAST(key AS STRING)", "CAST(value AS STRING)"
-#     ).writeStream.outputMode(
-#         "append"
-#     ).format(
-#         "console"
-#     ).start()
-# query.awaitTermination()
-
 kafka_df.printSchema()
 print('-----------------------------------1')
-
-# kafka_json_df = kafka_df.withColumn("value", expr("cast(value as string)"))
-## When receive as a json
-# json_schema = StructType([
-#     StructField("transaction_id", StringType(), True),
-#     StructField("customer_id", StringType(), True),
-#     StructField("card_number", StringType(), True),
-#     StructField("timestamp", TimestampType(), True),
-#     StructField("merchant_category", StringType(), True),
-#     StructField("merchant_type", StringType(), True),
-#     StructField("merchant", StringType(), True),
-#     StructField("amount", FloatType(), True),
-#     StructField("currency", StringType(), True),
-#     StructField("country", StringType(), True),
-#     StructField("city", StringType(), True),
-#     StructField("city_size", StringType(), True),
-#     StructField("card_type", StringType(), True),
-#     StructField("card_present", BooleanType(), True),
-#     StructField("device", StringType(), True),
-#     StructField("channel", StringType(), True),
-#     StructField("device_fingerprint", StringType(), True),
-#     StructField("ip_address", StringType(), True),
-#     StructField("distance_from_home", IntegerType(), True),
-#     StructField("high_risk_merchant", BooleanType(), True),
-#     StructField("transaction_hour", IntegerType(), True),
-#     StructField("weekend_transaction", BooleanType(), True),
-#     StructField("velocity_last_hour", MapType(StringType(), StringType()), True),
-#     StructField("is_fraud", BooleanType(), True)
-# ])
-# streaming_df = kafka_json_df.withColumn(
-#         "values_json", from_json(col("value"), json_schema)
-#     ).selectExpr("values_json.*")
 
 string_df = kafka_df.selectExpr("CAST(value AS STRING) as value")
 
@@ -154,7 +110,7 @@ split_df = (
 split_df = split_df.drop("velocity_last_hour")
 split_df = split_df.drop("timestamp")
 split_df = split_df.join(conversion_df, on="currency", how="left")
-split_df = split_df.withColumn("rate_usd", col("amount") * col("rate")) 
+split_df = split_df.withColumn("rate_usd", col("amount") / col("rate")) 
 split_df = split_df.drop("rate")
 split_df = split_df.dropDuplicates(["transaction_id"])
 
