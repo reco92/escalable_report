@@ -8,7 +8,8 @@ Es necesario tener Docker instalado, y crear un archivo `.env`, pueden basarse e
 
 ### Construir Imagenes y Levantarlas
 
-```shell me@localhost# docker-compose up --build
+```shell 
+me@localhost# docker-compose up --build
 ```
 
 
@@ -16,7 +17,8 @@ Es necesario tener Docker instalado, y crear un archivo `.env`, pueden basarse e
 
 EL servicio de Kafka se inicializa por defecto, se puede comprobar los topicos accediendo al contenedor y ejecutando el
 comando:
-```
+
+```shell
 kafka-topics.sh --list --bootstrap-server localhost:9092
 ```
 
@@ -25,7 +27,7 @@ kafka-topics.sh --list --bootstrap-server localhost:9092
 
 Acceder al conteneder de PySpark y Ejecutar este comando:
 
-```
+```shell
 shell me@localhost#:/home/scripts# python json_stream.py
 ```
 
@@ -34,12 +36,14 @@ shell me@localhost#:/home/scripts# python json_stream.py
 
 Acceder al conteneder de Producer para generar los mensajes iniciales:
 
-```shell me@localhost#:/app# python producer_json.py
+```shell 
+me@localhost#:/app# python producer_json.py
 ```
 
 
 Acceder al conteneder de Consumer para procesar los mensajes registrados por Producer:
 
-```shell me@localhost#:/app# python consumer_json.py
+```shell 
+me@localhost#:/app# python consumer_json.py
 ```
 
